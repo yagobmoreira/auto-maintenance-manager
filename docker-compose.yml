@@ -1,0 +1,11 @@
+services:
+  pg:
+    image: bitnami/postgresql:13.16.0
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      - POSTGRES_USER=ultracar
+      - POSTGRES_PASSWORD=my-secret
+      - POSTGRES_DB=ultracar_db
+
