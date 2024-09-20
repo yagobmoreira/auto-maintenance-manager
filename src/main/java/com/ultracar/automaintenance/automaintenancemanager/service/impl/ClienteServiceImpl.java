@@ -37,10 +37,6 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Transactional
     public Cliente create(Cliente entity) throws BusinessException {
-       ofNullable(entity).orElseThrow(() -> new BusinessException("Cliente não pode ser nulo."));
-       ofNullable(entity.getCpf()).orElseThrow(() -> new BusinessException("CPF do Cliente não pode ser vazio"));
-       ofNullable(entity.getNome()).orElseThrow(() -> new BusinessException("Nome do Cliente não pode ser vazio"));
-
        if (clienteRepository.existsClienteByCpf(entity.getCpf())) {
            throw new BusinessException("CPF já cadastrado anteriormente");
        }
