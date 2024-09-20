@@ -15,8 +15,7 @@ public class EnderecoServiceImpl {
         this.enderecoRepository = enderecoRepository;
     }
 
-    public Endereco create(Cliente cliente,  Endereco novoEndereco) {
-        novoEndereco.setCliente(cliente);
+    public Endereco create(Endereco novoEndereco) {
         return this.enderecoRepository.save(novoEndereco);
     }
 }

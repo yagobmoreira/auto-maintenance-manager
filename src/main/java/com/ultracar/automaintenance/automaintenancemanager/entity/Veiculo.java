@@ -1,5 +1,6 @@
 package com.ultracar.automaintenance.automaintenancemanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,6 +34,7 @@ public class Veiculo {
 
     @ManyToOne
     @JoinColumn(name = "clienteId")
+    @JsonBackReference
     private Cliente cliente;
 
     public Veiculo() {

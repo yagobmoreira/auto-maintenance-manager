@@ -6,16 +6,14 @@ import com.ultracar.automaintenance.automaintenancemanager.controller.dto.Client
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.ClienteDto;
 import com.ultracar.automaintenance.automaintenancemanager.entity.Cliente;
 import com.ultracar.automaintenance.automaintenancemanager.entity.Endereco;
-import com.ultracar.automaintenance.automaintenancemanager.service.ClienteService;
+import com.ultracar.automaintenance.automaintenancemanager.entity.Veiculo;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.ClienteNotFoundException;
 import com.ultracar.automaintenance.automaintenancemanager.service.impl.ClienteServiceImpl;
-import com.ultracar.automaintenance.automaintenancemanager.service.impl.EnderecoServiceImpl;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,14 +27,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping(value = "/clientes")
 public class ClienteController {
 
-    private final ClienteService clienteService;
-    private final EnderecoServiceImpl enderecoService;
+    private final ClienteServiceImpl clienteService;
 
     @Autowired
-    public ClienteController(ClienteServiceImpl clienteService,
-        EnderecoServiceImpl enderecoService) {
+    public ClienteController(ClienteServiceImpl clienteService) {
         this.clienteService = clienteService;
-        this.enderecoService = enderecoService;
     }
 
     @GetMapping()
@@ -47,7 +42,7 @@ public class ClienteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ClienteDto> findById(@PathVariable Long id)
-        throws ClienteNotFoundException, NotFoundException {
+        throws ClienteNotFoundException {
         Cliente cliente = clienteService.findById(id);
         return ResponseEntity.ok(ClienteDto.fromEntity(cliente));
     }
@@ -60,20 +55,20 @@ public class ClienteController {
         if (cep == null || cep.getCep() == null) {
             throw new BusinessException("Cep inválido!");
         }
-
-        Cliente novoCliente = this.clienteService.create(creationDto.toEntity());
+        Cliente novoCliente = creationDto.toEntity();
         Endereco endereco = new Endereco(cep.getCep(), cep.getLogradouro(), cep.getComplemento(),
             cep.getBairro(), cep.getLocalidade(), cep.getUf());
+        Veiculo veiculo = new Veiculo(creationDto.placa(), creationDto.modelo(), creationDto.marca(), creationDto.ano());
 
-        this.enderecoService.create(novoCliente, endereco);
-
-        novoCliente.setEndereco(endereco);
+        Cliente clienteCriado = clienteService.create(novoCliente, endereco, veiculo);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
             .buildAndExpand(novoCliente.getId())
             .toUri();
 
-        return ResponseEntity.created(location).body(ClienteDto.fromEntity(novoCliente));
+        return ResponseEntity.created(location).body(ClienteDto.fromEntity(clienteCriado));
     }
+
+
 }

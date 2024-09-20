@@ -1,12 +1,12 @@
 package com.ultracar.automaintenance.automaintenancemanager.controller;
 
-import com.ultracar.automaintenance.automaintenancemanager.controller.dto.ClienteDto;
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.VeiculoCreationDto;
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.VeiculoDto;
 import com.ultracar.automaintenance.automaintenancemanager.entity.Veiculo;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
+import com.ultracar.automaintenance.automaintenancemanager.service.exception.ClienteNotFoundException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.VeiculoNotFoundException;
-import com.ultracar.automaintenance.automaintenancemanager.service.impl.VeiculoServiceImp;
+import com.ultracar.automaintenance.automaintenancemanager.service.impl.VeiculoServiceImpl;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -24,10 +24,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping(value = "/veiculos")
 public class VeiculoController {
 
-    private final VeiculoServiceImp veiculoService;
+    private final VeiculoServiceImpl veiculoService;
 
     @Autowired
-    public VeiculoController(VeiculoServiceImp serviceImp) {
+    public VeiculoController(VeiculoServiceImpl serviceImp) {
         this.veiculoService = serviceImp;
     }
 
@@ -56,7 +56,20 @@ public class VeiculoController {
             .toUri();
 
         return ResponseEntity.created(location).body(VeiculoDto.fromEntity(novoVeiculo));
+    }
 
+    @PostMapping("/cliente/{clienteId}")
+    public ResponseEntity<VeiculoDto> setVeiculoCliente(
+        @RequestBody @Valid VeiculoCreationDto creationDto, @PathVariable Long clienteId)
+        throws BusinessException, ClienteNotFoundException {
+        Veiculo novoVeiculo =  this.veiculoService.addVeiculoToCliente(creationDto.toEntity(), clienteId);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(novoVeiculo.getId())
+            .toUri();
+
+        return ResponseEntity.created(location).body(VeiculoDto.fromEntity(novoVeiculo));
     }
 
 }
