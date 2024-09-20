@@ -1,5 +1,6 @@
 package com.ultracar.automaintenance.automaintenancemanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,8 +8,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,13 +33,21 @@ public class Cliente {
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Veiculo> veiculos;
 
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "endereco_id")
+    @JsonManagedReference
+    private Endereco endereco;
+
+    private boolean deleted;
+
     public Cliente() {
     }
 
-    public Cliente(Long id, String nome, String cpf) {
-        this.id = id;
+    public Cliente(String nome, String cpf) {
         this.nome = nome;
         this.cpf = cpf;
+        this.veiculos = new ArrayList<>();
+        this.deleted = false;
     }
 
     public Long getId() {
@@ -69,6 +81,22 @@ public class Cliente {
     public void setVeiculo(
         Veiculo veiculo) {
         this.veiculos.add(veiculo);
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted() {
+        this.deleted = true;
     }
 
     @Override
