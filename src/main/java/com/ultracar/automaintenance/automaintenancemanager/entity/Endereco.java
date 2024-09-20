@@ -33,7 +33,6 @@ public class Endereco {
     private String uf;
 
     @OneToOne
-    @MapsId
     @JoinColumn(name = "cliente_id")
     @JsonBackReference
     private Cliente cliente;

@@ -11,6 +11,7 @@ import com.ultracar.automaintenance.automaintenancemanager.service.exception.Bus
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.ClienteNotFoundException;
 import com.ultracar.automaintenance.automaintenancemanager.service.impl.ClienteServiceImpl;
 import com.ultracar.automaintenance.automaintenancemanager.service.impl.EnderecoServiceImpl;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +42,7 @@ public class ClienteController {
     @GetMapping()
     public ResponseEntity<List<ClienteDto>> findAll() {
         List<Cliente> clientes = clienteService.findAll();
-        return ResponseEntity.ok(clientes.stream().map(cliente -> {
-           return ClienteDto.fromEntity(cliente);
-        }).toList());
+        return ResponseEntity.ok(clientes.stream().map(ClienteDto::fromEntity).toList());
     }
 
     @GetMapping("/{id}")
@@ -54,7 +53,7 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<ClienteDto> create(@RequestBody ClienteCreationDto creationDto)
+    public ResponseEntity<ClienteDto> create(@RequestBody @Valid ClienteCreationDto creationDto)
         throws BusinessException {
         Cep cep = ViaCepClient.findCep(creationDto.cep());
 
