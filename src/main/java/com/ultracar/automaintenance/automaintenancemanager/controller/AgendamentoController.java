@@ -61,7 +61,7 @@ public class AgendamentoController {
   }
 
   /**
-   * Lista um agendamento pelo ID.
+   * Lista um agendamento pelo 'ID'.
    *
    * @param id 'ID' do agendamento
    * @return DTO do agendamento
