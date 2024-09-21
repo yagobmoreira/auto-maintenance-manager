@@ -2,6 +2,7 @@ package com.ultracar.automaintenance.automaintenancemanager.controller;
 
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.AgendamentoCreationDto;
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.AgendamentoDto;
+import com.ultracar.automaintenance.automaintenancemanager.controller.dto.AgendamentosClienteDto;
 import com.ultracar.automaintenance.automaintenancemanager.entity.Agendamento;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.AgendamentoNotFoundException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -147,5 +150,28 @@ public class AgendamentoController {
     Agendamento agendamentoCancelado = agendamentoService.cancelarServico(agendamentoId);
 
     return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamentoCancelado));
+  }
+
+  /**
+   * Listar agendamentos entre datas de um cliente.
+   *
+   * @param clienteId              'ID' do cliente
+   * @param agendamentosClienteDto DTO de datas
+   * @return Lista de agendamentos
+   */
+  @GetMapping("/clientes/{clienteId}")
+  @Operation(summary = "Buscar agendamentos de um cliente.",
+      description = "Listar todos os agendamentos de um cliente entre datas.")
+  @ApiResponse(responseCode = "200", description = "Retorno todos os agendamentos de um cliente.",
+      content = @Content(array = @ArraySchema(
+          schema = @Schema(implementation = AgendamentoDto.class)))
+  )
+  public ResponseEntity<List<AgendamentoDto>> listarAgendamentosEntreDatas(
+      @PathVariable Long clienteId,
+      @RequestBody AgendamentosClienteDto agendamentosClienteDto) {
+    List<Agendamento> agendamentos = this.agendamentoService.listarAgendamentoEntreDatas(clienteId,
+        agendamentosClienteDto.dataInicial(), agendamentosClienteDto.dataFinal());
+
+    return ResponseEntity.ok(agendamentos.stream().map(AgendamentoDto::fromEntity).toList());
   }
 }

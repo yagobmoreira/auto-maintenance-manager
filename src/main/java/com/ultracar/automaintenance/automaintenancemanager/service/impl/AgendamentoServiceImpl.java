@@ -8,6 +8,7 @@ import com.ultracar.automaintenance.automaintenancemanager.service.exception.Age
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.ClienteNotFoundException;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,5 +148,20 @@ public class AgendamentoServiceImpl {
 
     return agendamentoRepository.save(agendamento);
   }
-  
+
+
+  /**
+   * Listar agendamentos de um cliente entre duas datas.
+   *
+   * @param clienteId   'ID' do cliente
+   * @param dataInicial Data inicial
+   * @param dataFinal   Data final
+   * @return uma lista de agendamentos.
+   */
+  public List<Agendamento> listarAgendamentoEntreDatas(Long clienteId, LocalDateTime dataInicial,
+      LocalDateTime dataFinal) {
+    return this.agendamentoRepository.findByClienteIdBetweenDates(clienteId, dataInicial,
+        dataFinal);
+  }
+
 }
