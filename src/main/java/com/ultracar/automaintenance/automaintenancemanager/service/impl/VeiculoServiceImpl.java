@@ -2,71 +2,115 @@ package com.ultracar.automaintenance.automaintenancemanager.service.impl;
 
 import com.ultracar.automaintenance.automaintenancemanager.entity.Cliente;
 import com.ultracar.automaintenance.automaintenancemanager.entity.Veiculo;
-import com.ultracar.automaintenance.automaintenancemanager.repository.ClienteRepository;
 import com.ultracar.automaintenance.automaintenancemanager.repository.VeiculoRepository;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
-import com.ultracar.automaintenance.automaintenancemanager.service.exception.ClienteNotFoundException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.VeiculoNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Serviço de Veículo.
+ */
 @Service
 public class VeiculoServiceImpl {
 
-    private final VeiculoRepository veiculoRepository;
-    private final ClienteServiceImpl clienteService;
+  private final VeiculoRepository veiculoRepository;
 
-    @Autowired
-    public VeiculoServiceImpl(VeiculoRepository veiculoRepository,
-        ClienteServiceImpl clienteService) {
-        this.veiculoRepository = veiculoRepository;
-        this.clienteService = clienteService;
+  /**
+   * Instantiates a new Veiculo service.
+   *
+   * @param veiculoRepository the veiculo repository
+   */
+  @Autowired
+  public VeiculoServiceImpl(VeiculoRepository veiculoRepository) {
+    this.veiculoRepository = veiculoRepository;
+  }
+
+  /**
+   * Lista todos os veículos.
+   *
+   * @return uma lista de veículos.
+   */
+  public List<Veiculo> findAll() {
+    return this.veiculoRepository.findAll();
+  }
+
+  /**
+   * Procura um cliente pelo ‘ID’.
+   *
+   * @param veiculoId 'ID' do veículo
+   * @return Objeto do tipo Veiculo
+   * @throws VeiculoNotFoundException Caso não exista um veículo com o 'ID' indicado
+   */
+  public Veiculo findById(Long veiculoId) throws VeiculoNotFoundException {
+    return this.veiculoRepository.findById(veiculoId).orElseThrow(
+        VeiculoNotFoundException::new);
+  }
+
+  /**
+   * Cria veiculo.
+   *
+   * @param novoVeiculo Objeto do tipo Veículo
+   * @return Objeto do tipo Veiculo
+   * @throws BusinessException Caso já exista um veículo cadastrado com a mesma placa.
+   */
+  @Transactional
+  public Veiculo criarVeiculo(Veiculo novoVeiculo) throws BusinessException {
+    checkIfPlacaExists(novoVeiculo.getPlaca());
+
+    return this.veiculoRepository.save(novoVeiculo);
+  }
+
+  /**
+   * Criar veiculo com dono veiculo.
+   *
+   * @param novoVeiculo the novo veiculo
+   * @param donoVeiculo the dono veiculo
+   * @return the veiculo
+   * @throws BusinessException the business exception
+   */
+  public Veiculo criarVeiculoComDono(Veiculo novoVeiculo, Cliente donoVeiculo)
+      throws BusinessException {
+    checkIfPlacaExists(novoVeiculo.getPlaca());
+
+    Veiculo veiculo = new Veiculo(novoVeiculo.getPlaca(), novoVeiculo.getModelo(),
+        novoVeiculo.getMarca(), novoVeiculo.getAno());
+    veiculo.setCliente(donoVeiculo);
+
+    return this.veiculoRepository.save(veiculo);
+  }
+
+  private void checkIfPlacaExists(String placa) throws BusinessException {
+    if (veiculoRepository.existsByPlaca(placa)) {
+      throw new BusinessException("Veículo já cadastrado com a placa: " + placa);
     }
+  }
 
-    public List<Veiculo> findAll() {
-        return this.veiculoRepository.findAll();
-    }
+  /**
+   * Listar por placa veiculo.
+   *
+   * @param placa the placa
+   * @return the veiculo
+   * @throws VeiculoNotFoundException the veiculo not found exception
+   */
+  public Veiculo listarPorPlaca(String placa) throws VeiculoNotFoundException {
+    return this.veiculoRepository.findByPlaca(placa).orElseThrow(VeiculoNotFoundException::new);
+  }
 
-    public Veiculo findById(Long veiculoId) throws VeiculoNotFoundException {
-        return this.veiculoRepository.findById(veiculoId).orElseThrow(
-            VeiculoNotFoundException::new);
-    }
+  /**
+   * Adicionar cliente.
+   *
+   * @param cliente the cliente
+   * @param veiculo the veiculo
+   * @throws VeiculoNotFoundException the veiculo not found exception
+   */
+  public void adicionarCliente(Cliente cliente, Veiculo veiculo) throws VeiculoNotFoundException {
+    Veiculo dbVeiculo = findById(veiculo.getId());
+    dbVeiculo.setCliente(cliente);
 
-    @Transactional
-    public Veiculo create(Veiculo novoVeiculo) throws BusinessException {
-        checkIfPlacaExists(novoVeiculo.getPlaca());
-
-        return this.veiculoRepository.save(novoVeiculo);
-    }
-
-    @Transactional
-    public Veiculo addVeiculoToCliente(String placa, Long clienteId)
-        throws ClienteNotFoundException, BusinessException, VeiculoNotFoundException {
-
-        Optional<Veiculo> veiculo = this.veiculoRepository.findByPlaca(placa);
-
-        if (veiculo.isPresent()) {
-            if (veiculo.get().getCliente() != null) {
-                throw new BusinessException("Veículo já está vinculado ao cliente.");
-            }
-
-            Cliente cliente = clienteService.findById(clienteId);
-
-            veiculo.get().setCliente(cliente);
-            return veiculoRepository.save(veiculo.get());
-        }
-
-        throw new VeiculoNotFoundException();
-    }
-
-    private void checkIfPlacaExists(String placa) throws BusinessException {
-        if (veiculoRepository.existsByPlaca(placa)) {
-            throw new BusinessException("Veículo já cadastrado com a placa: " + placa);
-        }
-    }
-
+    this.veiculoRepository.save(dbVeiculo);
+  }
 
 }

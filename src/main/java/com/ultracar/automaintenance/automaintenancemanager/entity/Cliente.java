@@ -16,129 +16,209 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The type Cliente.
+ */
 @Entity
 @Table(name = "clientes")
 public class Cliente {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String nome;
+  @Column(nullable = false)
+  private String nome;
 
-    @Column(unique = true, nullable = false)
-    private String cpf;
+  @Column(unique = true, nullable = false)
+  private String cpf;
 
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<Veiculo> veiculos;
+  @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JsonManagedReference
+  private List<Veiculo> veiculos;
 
-    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "endereco_id")
-    @JsonManagedReference
-    private Endereco endereco;
+  @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinColumn(name = "endereco_id")
+  @JsonManagedReference
+  private Endereco endereco;
 
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<Agendamento> agendamentos;
+  @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JsonManagedReference
+  private List<Agendamento> agendamentos;
 
-    private boolean deleted;
+  private boolean deleted;
 
-    public Cliente() {
+  /**
+   * Instantiates a new Cliente.
+   */
+  public Cliente() {
+  }
+
+  /**
+   * Instantiates a new Cliente.
+   *
+   * @param nome the nome
+   * @param cpf  the cpf
+   */
+  public Cliente(String nome, String cpf) {
+    this.nome = nome;
+    this.cpf = cpf;
+    this.veiculos = new ArrayList<>();
+    this.agendamentos = new ArrayList<>();
+    this.deleted = false;
+  }
+
+  /**
+   * Gets id.
+   *
+   * @return the id
+   */
+  public Long getId() {
+    return id;
+  }
+
+  /**
+   * Sets id.
+   *
+   * @param id the id
+   */
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  /**
+   * Gets nome.
+   *
+   * @return the nome
+   */
+  public String getNome() {
+    return nome;
+  }
+
+  /**
+   * Sets nome.
+   *
+   * @param nome the nome
+   */
+  public void setNome(String nome) {
+    this.nome = nome;
+  }
+
+  /**
+   * Gets cpf.
+   *
+   * @return the cpf
+   */
+  public String getCpf() {
+    return cpf;
+  }
+
+  /**
+   * Sets cpf.
+   *
+   * @param cpf the cpf
+   */
+  public void setCpf(String cpf) {
+    this.cpf = cpf;
+  }
+
+  /**
+   * Gets veiculos.
+   *
+   * @return the veiculos
+   */
+  public List<Veiculo> getVeiculos() {
+    return veiculos;
+  }
+
+  /**
+   * Sets veiculo.
+   *
+   * @param veiculo the veiculo
+   */
+  public void setVeiculo(
+      Veiculo veiculo) {
+    this.veiculos.add(veiculo);
+  }
+
+  /**
+   * Gets endereco.
+   *
+   * @return the endereco
+   */
+  public Endereco getEndereco() {
+    return endereco;
+  }
+
+  /**
+   * Sets endereco.
+   *
+   * @param endereco the endereco
+   */
+  public void setEndereco(Endereco endereco) {
+    this.endereco = endereco;
+  }
+
+  /**
+   * Gets agendamentos.
+   *
+   * @return the agendamentos
+   */
+  public List<Agendamento> getAgendamentos() {
+    return agendamentos;
+  }
+
+  /**
+   * Sets agendamento.
+   *
+   * @param agendamento the agendamento
+   */
+  public void setAgendamento(
+      Agendamento agendamento) {
+    this.agendamentos.add(agendamento);
+  }
+
+  /**
+   * Is deleted boolean.
+   *
+   * @return the boolean
+   */
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  /**
+   * Sets deleted.
+   */
+  public void setDeleted() {
+    this.deleted = true;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public Cliente(String nome, String cpf) {
-        this.nome = nome;
-        this.cpf = cpf;
-        this.veiculos = new ArrayList<>();
-        this.agendamentos = new ArrayList<>();
-        this.deleted = false;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    Cliente cliente = (Cliente) o;
+    return Objects.equals(getId(), cliente.getId()) && Objects.equals(getCpf(),
+        cliente.getCpf());
+  }
 
-    public Long getId() {
-        return id;
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getId(), getCpf());
+  }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
-    public List<Veiculo> getVeiculos() {
-        return veiculos;
-    }
-
-    public void setVeiculo(
-        Veiculo veiculo) {
-        this.veiculos.add(veiculo);
-    }
-
-    public Endereco getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(Endereco endereco) {
-        this.endereco = endereco;
-    }
-
-    public List<Agendamento> getAgendamentos() {
-        return agendamentos;
-    }
-
-    public void setAgendamento(
-        Agendamento agendamento) {
-        this.agendamentos.add(agendamento);
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted() {
-        this.deleted = true;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Cliente cliente = (Cliente) o;
-        return Objects.equals(getId(), cliente.getId()) && Objects.equals(getCpf(),
-            cliente.getCpf());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getCpf());
-    }
-
-    @Override
-    public String toString() {
-        return "Cliente{" +
-            "id=" + id +
-            ", nome='" + nome + '\'' +
-            ", cpf='" + cpf + '\'' +
-            ", veiculos=" + veiculos +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "Cliente{"
+               + "id=" + id
+               + ", nome='" + nome + '\''
+               + ", cpf='" + cpf + '\''
+               + ", veiculos=" + (veiculos != null ? veiculos : "nenhum")
+               + '}';
+  }
 }

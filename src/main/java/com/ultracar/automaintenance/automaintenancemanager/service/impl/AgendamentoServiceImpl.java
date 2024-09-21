@@ -13,88 +13,139 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Serviço de Agendamento.
+ */
 @Service
 public class AgendamentoServiceImpl {
 
-    private final ClienteServiceImpl clienteService;
-    private final AgendamentoRepository agendamentoRepository;
+  private final AgendamentoRepository agendamentoRepository;
+  private ClienteServiceImpl clienteService;
 
-    @Autowired
-    public AgendamentoServiceImpl(ClienteServiceImpl clienteService,
-        AgendamentoRepository agendamentoRepository) {
-        this.clienteService = clienteService;
-        this.agendamentoRepository = agendamentoRepository;
+  @Autowired
+  public AgendamentoServiceImpl(AgendamentoRepository agendamentoRepository) {
+    this.agendamentoRepository = agendamentoRepository;
+  }
+
+  @Autowired
+  public void setClienteService(ClienteServiceImpl clienteService) {
+    this.clienteService = clienteService;
+  }
+
+  /**
+   * Lista todos os agendamentos.
+   *
+   * @return uma lista de agendamentos.
+   */
+  public List<Agendamento> findAll() {
+    return this.agendamentoRepository.findAll();
+  }
+
+  /**
+   * /Procura um agendamento pelo ‘ID’.
+   *
+   * @param agendamentoId 'ID' do agendamento
+   * @return Objeto do tipo Agendamento
+   * @throws AgendamentoNotFoundException Caso não exista um agendamento com o 'ID' indicado
+   */
+  public Agendamento findById(Long agendamentoId) throws AgendamentoNotFoundException {
+    return this.agendamentoRepository.findById(agendamentoId).orElseThrow(
+        AgendamentoNotFoundException::new);
+  }
+
+  /**
+   * Cria um agendamento, e víncula ao cliente.
+   *
+   * @param novoAgendamento novo agendamento
+   * @param clienteId       'ID' do cliente
+   * @return Objeto do tipo Agendamento
+   * @throws ClienteNotFoundException Caso não exista um cliente com o 'ID' indicado
+   * @throws BusinessException        Caso a data seja inválida
+   */
+  @Transactional
+  public Agendamento create(Agendamento novoAgendamento, Long clienteId)
+      throws ClienteNotFoundException, BusinessException {
+    Cliente cliente = this.clienteService.findById(clienteId);
+
+    //Verificação da data de agendamento
+    verificarDataAgendamento(novoAgendamento.getDataAgendamento());
+
+    novoAgendamento.setCliente(cliente);
+    cliente.setAgendamento(novoAgendamento);
+
+    return this.agendamentoRepository.save(novoAgendamento);
+  }
+
+  private void verificarDataAgendamento(LocalDateTime dataAgendamento) throws BusinessException {
+    LocalDateTime dataLimite = LocalDateTime.now().plusMonths(6);
+
+    //Agendamentos são válidos apenas para datas até 6 meses após a data atual.
+    if (dataAgendamento.isAfter(dataLimite)) {
+      throw new BusinessException(
+          "A data de agendamento não pode ser superior à 6 meses da data atual.");
     }
 
-    public List<Agendamento> findAll() {
-        return this.agendamentoRepository.findAll();
+    //O horário permitido para agendamento é das 08h00 às 17h59
+    if (dataAgendamento.getHour() < 8 || dataAgendamento.getHour() > 18) {
+      throw new BusinessException("O horário de agendamento deve ser entre 8h e 18h.");
+    }
+  }
+
+  /**
+   * Finalizar serviço agendamento.
+   *
+   * @param agendamentoId 'ID' do agendamento
+   * @return Objeto do tipo Agendamento
+   * @throws AgendamentoNotFoundException Caso não exista um agendamento com o 'ID' indicado
+   * @throws BusinessException            Caso o agendamento já esteja sido concluído ou cancelado
+   *                                      anteriormente.
+   */
+  @Transactional
+  public Agendamento finalizarServico(Long agendamentoId)
+      throws AgendamentoNotFoundException, BusinessException {
+    Agendamento agendamento = this.findById(agendamentoId);
+
+    if (!agendamento.getStatus().equals(StatusType.PENDENTE)) {
+      throw new BusinessException(
+          "Erro ao finalizar o agendamento. Agendamento já realizado ou cancelado anteriormente");
     }
 
-    public Agendamento findById(Long agendamentoId) throws AgendamentoNotFoundException {
-        return this.agendamentoRepository.findById(agendamentoId).orElseThrow(
-            AgendamentoNotFoundException::new);
+    agendamento.setStatus(StatusType.REALIZADO);
+
+    return agendamentoRepository.save(agendamento);
+  }
+
+  /**
+   * Cancelar servico agendamento.
+   *
+   * @param agendamentoId 'ID' do agendamento
+   * @return Objeto do tipo Agendamento
+   * @throws AgendamentoNotFoundException Caso não exista um agendamento com o 'ID' indicado
+   * @throws BusinessException            Caso o agendamento já esteja sido concluído ou cancelado
+   *                                      anteriormente. Agendamento deve ser cancelado em até 24h
+   *                                      de antecedência.
+   */
+  @Transactional
+  public Agendamento cancelarServico(Long agendamentoId)
+      throws AgendamentoNotFoundException, BusinessException {
+    Agendamento agendamento = this.findById(agendamentoId);
+
+    if (!agendamento.getStatus().equals(StatusType.PENDENTE)) {
+      throw new BusinessException(
+          "Erro ao cancelar o agendamento. Agendamento já realizado ou cancelado anteriormente");
     }
 
-    @Transactional
-    public Agendamento create(Agendamento novoAgendamento, Long clienteId)
-        throws ClienteNotFoundException, BusinessException {
-        Cliente cliente = this.clienteService.findById(clienteId);
+    LocalDateTime dataLimite = agendamento.getDataAgendamento().minusHours(24L);
 
-        //Verificação da data de agendamento
-        verificarDataAgendamento(novoAgendamento.getDataAgendamento());
-
-        novoAgendamento.setCliente(cliente);
-        cliente.setAgendamento(novoAgendamento);
-
-        return this.agendamentoRepository.save(novoAgendamento);
+    if (LocalDateTime.now().isAfter(dataLimite)) {
+      throw new BusinessException(
+          "Erro ao cancelar o agendamento. "
+              + "Cancelamento deve ser feito com no mínimo 24 horas de antecedência.");
     }
 
-    private void verificarDataAgendamento(LocalDateTime dataAgendamento) throws BusinessException {
-        LocalDateTime dataLimite = LocalDateTime.now().plusMonths(6);
+    agendamento.setStatus(StatusType.CANCELADO);
 
-        if (dataAgendamento.isAfter(dataLimite)) {
-            throw new BusinessException("A data de agendamento não pode ser superior à 6 meses da data atual.");
-        }
-
-        if (dataAgendamento.getHour() < 8 || dataAgendamento.getHour() > 18) {
-            throw new BusinessException("O horário de agendamento deve ser entre 8h e 18h.");
-        }
-    }
-
-    @Transactional
-    public Agendamento finalizarServico(Long agendamentoId)
-        throws AgendamentoNotFoundException, BusinessException {
-        Agendamento agendamento = this.findById(agendamentoId);
-
-        if (!agendamento.getStatus().equals(StatusType.PENDENTE)) {
-            throw new BusinessException("Erro ao finalizar o agendamento. Agendamento já realizado ou cancelado anteriormente");
-        }
-
-        agendamento.setStatus(StatusType.REALIZADO);
-
-        return agendamentoRepository.save(agendamento);
-    }
-
-    @Transactional
-    public Agendamento cancelarServico(Long agendamentoId)
-        throws AgendamentoNotFoundException, BusinessException {
-        Agendamento agendamento = this.findById(agendamentoId);
-
-        if (!agendamento.getStatus().equals(StatusType.PENDENTE)) {
-            throw new BusinessException("Erro ao cancelar o agendamento. Agendamento já realizado ou cancelado anteriormente");
-        }
-
-        LocalDateTime dataLimite = agendamento.getDataAgendamento().minusHours(24L);
-
-        if (LocalDateTime.now().isAfter(dataLimite)) {
-            throw new BusinessException("Erro ao cancelar o agendamento. Cancelamento deve ser feito com no mínimo 24 horas de antecedência.");
-        }
-
-        agendamento.setStatus(StatusType.CANCELADO);
-
-        return agendamentoRepository.save(agendamento);
-    }
-
-//    public Agendamento atualizarDataAgendamento(Long agendamentoId, LocalDateTime novaData) {
-//    }
+    return agendamentoRepository.save(agendamento);
+  }
+  
 }

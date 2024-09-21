@@ -2,7 +2,6 @@ package com.ultracar.automaintenance.automaintenancemanager.controller;
 
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.AgendamentoCreationDto;
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.AgendamentoDto;
-import com.ultracar.automaintenance.automaintenancemanager.controller.dto.ClienteDto;
 import com.ultracar.automaintenance.automaintenancemanager.entity.Agendamento;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.AgendamentoNotFoundException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
@@ -26,56 +25,54 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/agendamentos")
 public class AgendamentoController {
 
-    private final AgendamentoServiceImpl agendamentoService;
+  private final AgendamentoServiceImpl agendamentoService;
 
-    @Autowired
-    public AgendamentoController(AgendamentoServiceImpl agendamentoService) {
-        this.agendamentoService = agendamentoService;
-    }
+  @Autowired
+  public AgendamentoController(AgendamentoServiceImpl agendamentoService) {
+    this.agendamentoService = agendamentoService;
+  }
 
-    @GetMapping
-    public ResponseEntity<List<AgendamentoDto>> findAll() {
-        List<Agendamento> agendamentos = agendamentoService.findAll();
-        return ResponseEntity.ok(agendamentos.stream().map(AgendamentoDto::fromEntity).toList());
-    }
+  @GetMapping
+  public ResponseEntity<List<AgendamentoDto>> findAll() {
+    List<Agendamento> agendamentos = agendamentoService.findAll();
+    return ResponseEntity.ok(agendamentos.stream().map(AgendamentoDto::fromEntity).toList());
+  }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AgendamentoDto> findById(@PathVariable Long id)
-        throws AgendamentoNotFoundException {
-        Agendamento agendamento = agendamentoService.findById(id);
+  @GetMapping("/{id}")
+  public ResponseEntity<AgendamentoDto> findById(@PathVariable Long id)
+      throws AgendamentoNotFoundException {
+    Agendamento agendamento = agendamentoService.findById(id);
 
-        return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamento));
-    }
+    return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamento));
+  }
 
-    @PostMapping("/clientes/{clienteId}")
-    public ResponseEntity<AgendamentoDto> create(@RequestBody @Valid AgendamentoCreationDto creationDto, @PathVariable Long clienteId)
-        throws ClienteNotFoundException, BusinessException {
-        Agendamento novoAgendamento = creationDto.toEntity();
+  @PostMapping("/clientes/{clienteId}")
+  public ResponseEntity<AgendamentoDto> create(
+      @RequestBody @Valid AgendamentoCreationDto creationDto, @PathVariable Long clienteId)
+      throws ClienteNotFoundException, BusinessException {
+    Agendamento novoAgendamento = creationDto.toEntity();
 
-        Agendamento agendamentoCriado = agendamentoService.create(novoAgendamento, clienteId);
+    Agendamento agendamentoCriado = agendamentoService.create(novoAgendamento, clienteId);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-            .path("/clientes/{clienteId}")
-            .buildAndExpand(novoAgendamento.getId())
-            .toUri();
+    URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/clientes/{clienteId}")
+                     .buildAndExpand(novoAgendamento.getId()).toUri();
 
-        return ResponseEntity.created(location).body(AgendamentoDto.fromEntity(agendamentoCriado));
+    return ResponseEntity.created(location).body(AgendamentoDto.fromEntity(agendamentoCriado));
+  }
 
-    }
+  @PatchMapping("/{agendamentoId}/finalizar")
+  public ResponseEntity<AgendamentoDto> finalizarServico(@PathVariable Long agendamentoId)
+      throws AgendamentoNotFoundException, BusinessException {
+    Agendamento agendamentoFinalizado = agendamentoService.finalizarServico(agendamentoId);
 
-    @PatchMapping("/{agendamentoId}/finalizar")
-    public ResponseEntity<AgendamentoDto> finalizarServico(@PathVariable Long agendamentoId)
-        throws AgendamentoNotFoundException, BusinessException {
-        Agendamento agendamentoFinalizado = agendamentoService.finalizarServico(agendamentoId);
+    return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamentoFinalizado));
+  }
 
-        return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamentoFinalizado));
-    }
+  @PatchMapping("/{agendamentoId}/cancelar")
+  public ResponseEntity<AgendamentoDto> cancelarServico(@PathVariable Long agendamentoId)
+      throws AgendamentoNotFoundException, BusinessException {
+    Agendamento agendamentoCancelado = agendamentoService.cancelarServico(agendamentoId);
 
-    @PatchMapping("/{agendamentoId}/cancelar")
-    public ResponseEntity<AgendamentoDto> cancelarServico(@PathVariable Long agendamentoId)
-        throws AgendamentoNotFoundException, BusinessException {
-        Agendamento agendamentoCancelado = agendamentoService.cancelarServico(agendamentoId);
-
-        return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamentoCancelado));
-    }
+    return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamentoCancelado));
+  }
 }

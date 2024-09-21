@@ -12,40 +12,67 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+/**
+ * The type Global controller advice.
+ */
 @ControllerAdvice
 public class GlobalControllerAdvice {
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleNotFound(NotFoundException exception) {
-        return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
-            .body(exception.getMessage());
-    }
+  /**
+   * Handle not found response entity.
+   *
+   * @param exception the exception
+   * @return the response entity
+   */
+  @ExceptionHandler
+  public ResponseEntity<String> handleNotFound(NotFoundException exception) {
+    return ResponseEntity
+               .status(HttpStatus.NOT_FOUND)
+               .body(exception.getMessage());
+  }
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleBusinessException(BusinessException exception) {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(exception.getMessage());
-    }
+  /**
+   * Handle business exception response entity.
+   *
+   * @param exception the exception
+   * @return the response entity
+   */
+  @ExceptionHandler
+  public ResponseEntity<String> handleBusinessException(BusinessException exception) {
+    return ResponseEntity
+               .status(HttpStatus.BAD_REQUEST)
+               .body(exception.getMessage());
+  }
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
-        List<String> errorMessages = e.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(FieldError::getDefaultMessage)
-            .collect(Collectors.toList());
+  /**
+   * Handle method argument not valid response entity.
+   *
+   * @param e the e
+   * @return the response entity
+   */
+  @ExceptionHandler
+  public ResponseEntity<String> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+    List<String> errorMessages = e.getBindingResult()
+                                     .getFieldErrors()
+                                     .stream()
+                                     .map(FieldError::getDefaultMessage)
+                                     .collect(Collectors.toList());
 
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(String.join(", ", errorMessages));
-    }
+    return ResponseEntity
+               .status(HttpStatus.BAD_REQUEST)
+               .body(String.join(", ", errorMessages));
+  }
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException e) {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body("Formato de data inválido.");
-    }
+  /**
+   * Handle date time parse exception response entity.
+   *
+   * @param e the e
+   * @return the response entity
+   */
+  @ExceptionHandler
+  public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException e) {
+    return ResponseEntity
+               .status(HttpStatus.BAD_REQUEST)
+               .body("Formato de data inválido.");
+  }
 }
