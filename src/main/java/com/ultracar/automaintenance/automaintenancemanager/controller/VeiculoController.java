@@ -6,6 +6,11 @@ import com.ultracar.automaintenance.automaintenancemanager.entity.Veiculo;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.VeiculoNotFoundException;
 import com.ultracar.automaintenance.automaintenancemanager.service.impl.VeiculoServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -39,24 +44,33 @@ public class VeiculoController {
   }
 
   /**
-   * Find all response entity.
+   * Listar todos os veículos.
    *
-   * @return the response entity
+   * @return DTO de todos os veículos
    */
   @GetMapping()
+  @Operation(summary = "Buscar veículos", description = "Listar todos os veículos")
+  @ApiResponse(responseCode = "200", description = "Retorno de todos os veículos",
+      content = @Content(array = @ArraySchema(
+          schema = @Schema(implementation = VeiculoDto.class)
+      )))
   public ResponseEntity<List<VeiculoDto>> findAll() {
     List<Veiculo> veiculos = veiculoService.findAll();
     return ResponseEntity.ok(veiculos.stream().map(VeiculoDto::fromEntity).toList());
   }
 
   /**
-   * Find by id response entity.
+   * Lista um veículo pelo 'ID'.
    *
-   * @param id the id
-   * @return the response entity
-   * @throws VeiculoNotFoundException the veiculo not found exception
+   * @param id 'ID' do veículo
+   * @return DTO do veículo
+   * @throws VeiculoNotFoundException Caso o veículo não seja encontrado
    */
   @GetMapping("/{id}")
+  @Operation(summary = "Buscar um veículo", description = "Buscar um veículo pelo 'ID'")
+  @ApiResponse(responseCode = "200", description = "Retorno de um veículo",
+      content = @Content(schema = @Schema(implementation = VeiculoDto.class)))
+  @ApiResponse(responseCode = "404", description = "Veículo não encontrado")
   public ResponseEntity<VeiculoDto> findById(@PathVariable Long id)
       throws VeiculoNotFoundException {
     Veiculo veiculo = veiculoService.findById(id);
@@ -65,13 +79,17 @@ public class VeiculoController {
   }
 
   /**
-   * Create response entity.
+   * Criar um veículo.
    *
-   * @param creationDto the creation dto
-   * @return the response entity
-   * @throws BusinessException the business exception
+   * @param creationDto DTO de criação de veículo
+   * @return DTO do veículo criado
+   * @throws BusinessException Caso o veículo já tenha sido cadastrado.
    */
   @PostMapping
+  @Operation(summary = "Criar um veículo", description = "Criar um veículo")
+  @ApiResponse(responseCode = "201", description = "Veículo criado",
+      content = @Content(schema = @Schema(implementation = VeiculoDto.class)))
+  @ApiResponse(responseCode = "400", description = "Veículo já cadastrado")
   public ResponseEntity<VeiculoDto> create(@RequestBody @Valid VeiculoCreationDto creationDto)
       throws BusinessException {
     Veiculo novoVeiculo = this.veiculoService.criarVeiculo(creationDto.toEntity());

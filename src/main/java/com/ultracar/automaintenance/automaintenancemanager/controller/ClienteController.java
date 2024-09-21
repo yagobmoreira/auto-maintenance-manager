@@ -41,7 +41,9 @@ public class ClienteController {
   private final ClienteServiceImpl clienteService;
 
   /**
-   * Listar todos os clientes.
+   * Instantiates a new Cliente controller.
+   *
+   * @param clienteService the cliente service
    */
   @Autowired
   public ClienteController(ClienteServiceImpl clienteService) {
@@ -49,9 +51,9 @@ public class ClienteController {
   }
 
   /**
-   * Find all response entity.
+   * Listar todos os clientes.
    *
-   * @return the response entity
+   * @return DTO de todos os clientes
    */
   @GetMapping()
   @Operation(summary = "Buscar clientes", description = "Listar todos os clientes")
