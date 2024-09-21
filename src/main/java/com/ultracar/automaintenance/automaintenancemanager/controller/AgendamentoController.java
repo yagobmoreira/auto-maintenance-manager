@@ -7,6 +7,11 @@ import com.ultracar.automaintenance.automaintenancemanager.service.exception.Age
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.ClienteNotFoundException;
 import com.ultracar.automaintenance.automaintenancemanager.service.impl.AgendamentoServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -21,24 +26,52 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+/**
+ * The type Agendamento controller.
+ */
 @RestController
 @RequestMapping("/agendamentos")
 public class AgendamentoController {
 
   private final AgendamentoServiceImpl agendamentoService;
 
+  /**
+   * Instantiates a new Agendamento controller.
+   *
+   * @param agendamentoService the agendamento service
+   */
   @Autowired
   public AgendamentoController(AgendamentoServiceImpl agendamentoService) {
     this.agendamentoService = agendamentoService;
   }
 
+  /**
+   * Listar todos os agendamentos.
+   *
+   * @return DTO de agendamentos
+   */
   @GetMapping
+  @Operation(summary = "Buscar agendamentos.", description = "Listar todos os agendamentos.")
+  @ApiResponse(responseCode = "200", description = "Retorno de todos os agendamentos.",
+      content = @Content(array = @ArraySchema(
+          schema = @Schema(implementation = AgendamentoDto.class))))
   public ResponseEntity<List<AgendamentoDto>> findAll() {
     List<Agendamento> agendamentos = agendamentoService.findAll();
     return ResponseEntity.ok(agendamentos.stream().map(AgendamentoDto::fromEntity).toList());
   }
 
+  /**
+   * Lista um agendamento pelo ID.
+   *
+   * @param id 'ID' do agendamento
+   * @return DTO do agendamento
+   * @throws AgendamentoNotFoundException Caso não encontre o agendamento
+   */
   @GetMapping("/{id}")
+  @Operation(summary = "Buscar agendamento.", description = "Buscar um agendamento pelo ID.")
+  @ApiResponse(responseCode = "200", description = "Retorno do agendamento.",
+      content = @Content(schema = @Schema(implementation = AgendamentoDto.class)))
+  @ApiResponse(responseCode = "404", description = "Agendamento não encontrado.")
   public ResponseEntity<AgendamentoDto> findById(@PathVariable Long id)
       throws AgendamentoNotFoundException {
     Agendamento agendamento = agendamentoService.findById(id);
@@ -46,7 +79,21 @@ public class AgendamentoController {
     return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamento));
   }
 
+  /**
+   * Criar um agendamento.
+   *
+   * @param creationDto DTO de criação de agendamento
+   * @param clienteId   'ID' do cliente
+   * @return DTO do agendamento criado
+   * @throws ClienteNotFoundException Caso não encontre o cliente
+   * @throws BusinessException        Caso a data seja inválida
+   */
   @PostMapping("/clientes/{clienteId}")
+  @Operation(summary = "Criar agendamento.", description = "Criar um novo agendamento.")
+  @ApiResponse(responseCode = "201", description = "Agendamento criado.",
+      content = @Content(schema = @Schema(implementation = AgendamentoDto.class)))
+  @ApiResponse(responseCode = "404", description = "Cliente não encontrado.")
+  @ApiResponse(responseCode = "400", description = "Data inválida.")
   public ResponseEntity<AgendamentoDto> create(
       @RequestBody @Valid AgendamentoCreationDto creationDto, @PathVariable Long clienteId)
       throws ClienteNotFoundException, BusinessException {
@@ -55,12 +102,25 @@ public class AgendamentoController {
     Agendamento agendamentoCriado = agendamentoService.create(novoAgendamento, clienteId);
 
     URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/clientes/{clienteId}")
-                     .buildAndExpand(novoAgendamento.getId()).toUri();
+                       .buildAndExpand(novoAgendamento.getId()).toUri();
 
     return ResponseEntity.created(location).body(AgendamentoDto.fromEntity(agendamentoCriado));
   }
 
+  /**
+   * Finaliza um agendamento. Status 'REALIZADO'.
+   *
+   * @param agendamentoId 'ID' do agendamento
+   * @return DTO do agendamento finalizado
+   * @throws AgendamentoNotFoundException Caso não encontre o agendamento
+   * @throws BusinessException            Caso o agendamento já tenha sido finalizado ou cancelado
+   */
   @PatchMapping("/{agendamentoId}/finalizar")
+  @Operation(summary = "Finalizar agendamento.", description = "Finalizar um agendamento.")
+  @ApiResponse(responseCode = "200", description = "Agendamento finalizado",
+      content = @Content(schema = @Schema(implementation = AgendamentoDto.class)))
+  @ApiResponse(responseCode = "404", description = "Agendamento não encontrado.")
+  @ApiResponse(responseCode = "400", description = "Agendamento já finalizado ou cancelado.")
   public ResponseEntity<AgendamentoDto> finalizarServico(@PathVariable Long agendamentoId)
       throws AgendamentoNotFoundException, BusinessException {
     Agendamento agendamentoFinalizado = agendamentoService.finalizarServico(agendamentoId);
@@ -68,7 +128,20 @@ public class AgendamentoController {
     return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamentoFinalizado));
   }
 
+  /**
+   * Cancela um agendamento. Status 'CANCELADO'.
+   *
+   * @param agendamentoId 'ID' do agendamento
+   * @return DTO do agendamento cancelado
+   * @throws AgendamentoNotFoundException Caso não encontre o agendamento
+   * @throws BusinessException            Caso o agendamento já tenha sido finalizado ou cancelado
+   */
   @PatchMapping("/{agendamentoId}/cancelar")
+  @Operation(summary = "Cancelar agendamento.", description = "Cancelar um agendamento.")
+  @ApiResponse(responseCode = "200", description = "Agendamento cancelado.",
+      content = @Content(schema = @Schema(implementation = AgendamentoDto.class)))
+  @ApiResponse(responseCode = "404", description = "Agendamento não encontrado.")
+  @ApiResponse(responseCode = "400", description = "Agendamento já finalizado ou cancelado.")
   public ResponseEntity<AgendamentoDto> cancelarServico(@PathVariable Long agendamentoId)
       throws AgendamentoNotFoundException, BusinessException {
     Agendamento agendamentoCancelado = agendamentoService.cancelarServico(agendamentoId);
