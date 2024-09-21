@@ -17,12 +17,13 @@ import org.springframework.stereotype.Service;
 public class VeiculoServiceImpl {
 
     private final VeiculoRepository veiculoRepository;
-    private final ClienteRepository clienteRepository;
+    private final ClienteServiceImpl clienteService;
 
     @Autowired
-    public VeiculoServiceImpl(VeiculoRepository veiculoRepository, ClienteRepository clienteRepository) {
+    public VeiculoServiceImpl(VeiculoRepository veiculoRepository,
+        ClienteServiceImpl clienteService) {
         this.veiculoRepository = veiculoRepository;
-        this.clienteRepository = clienteRepository;
+        this.clienteService = clienteService;
     }
 
     public List<Veiculo> findAll() {
@@ -42,16 +43,23 @@ public class VeiculoServiceImpl {
     }
 
     @Transactional
-    public Veiculo addVeiculoToCliente(Veiculo novoVeiculo, Long clienteId)
-        throws ClienteNotFoundException, BusinessException {
+    public Veiculo addVeiculoToCliente(String placa, Long clienteId)
+        throws ClienteNotFoundException, BusinessException, VeiculoNotFoundException {
 
-        checkIfPlacaExists(novoVeiculo.getPlaca());
+        Optional<Veiculo> veiculo = this.veiculoRepository.findByPlaca(placa);
 
-        Cliente cliente = clienteRepository.findById(clienteId)
-            .orElseThrow(ClienteNotFoundException::new);
+        if (veiculo.isPresent()) {
+            if (veiculo.get().getCliente() != null) {
+                throw new BusinessException("Veículo já está vinculado ao cliente.");
+            }
 
-        novoVeiculo.setCliente(cliente);
-        return veiculoRepository.save(novoVeiculo);
+            Cliente cliente = clienteService.findById(clienteId);
+
+            veiculo.get().setCliente(cliente);
+            return veiculoRepository.save(veiculo.get());
+        }
+
+        throw new VeiculoNotFoundException();
     }
 
     private void checkIfPlacaExists(String placa) throws BusinessException {
@@ -59,4 +67,6 @@ public class VeiculoServiceImpl {
             throw new BusinessException("Veículo já cadastrado com a placa: " + placa);
         }
     }
+
+
 }

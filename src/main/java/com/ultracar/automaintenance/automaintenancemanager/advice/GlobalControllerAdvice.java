@@ -2,6 +2,7 @@ package com.ultracar.automaintenance.automaintenancemanager.advice;
 
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.NotFoundException;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -39,5 +40,12 @@ public class GlobalControllerAdvice {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(String.join(", ", errorMessages));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException e) {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body("Formato de data inválido.");
     }
 }

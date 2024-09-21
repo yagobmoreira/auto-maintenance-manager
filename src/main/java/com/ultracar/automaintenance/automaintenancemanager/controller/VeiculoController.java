@@ -2,6 +2,7 @@ package com.ultracar.automaintenance.automaintenancemanager.controller;
 
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.VeiculoCreationDto;
 import com.ultracar.automaintenance.automaintenancemanager.controller.dto.VeiculoDto;
+import com.ultracar.automaintenance.automaintenancemanager.controller.dto.VincularVeiculoClienteDto;
 import com.ultracar.automaintenance.automaintenancemanager.entity.Veiculo;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.ClienteNotFoundException;
@@ -60,9 +61,9 @@ public class VeiculoController {
 
     @PostMapping("/cliente/{clienteId}")
     public ResponseEntity<VeiculoDto> setVeiculoCliente(
-        @RequestBody @Valid VeiculoCreationDto creationDto, @PathVariable Long clienteId)
-        throws BusinessException, ClienteNotFoundException {
-        Veiculo novoVeiculo =  this.veiculoService.addVeiculoToCliente(creationDto.toEntity(), clienteId);
+        @RequestBody @Valid VincularVeiculoClienteDto vincularDto, @PathVariable Long clienteId)
+        throws BusinessException, ClienteNotFoundException, VeiculoNotFoundException {
+        Veiculo novoVeiculo =  this.veiculoService.addVeiculoToCliente(vincularDto.placa(), clienteId);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")

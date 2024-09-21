@@ -55,6 +55,10 @@ public class AgendamentoServiceImpl {
         if (dataAgendamento.isAfter(dataLimite)) {
             throw new BusinessException("A data de agendamento não pode ser superior à 6 meses da data atual.");
         }
+
+        if (dataAgendamento.getHour() < 8 || dataAgendamento.getHour() > 18) {
+            throw new BusinessException("O horário de agendamento deve ser entre 8h e 18h.");
+        }
     }
 
     @Transactional
