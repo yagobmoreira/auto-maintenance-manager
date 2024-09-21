@@ -104,8 +104,4 @@ public class ClienteServiceImpl {
 
         this.clienteRepository.save(dbCliente);
     }
-
-    public Cliente saveAgendamento(Cliente clienteComAgendamento) {
-        return this.clienteRepository.save(clienteComAgendamento);
-    }
 }

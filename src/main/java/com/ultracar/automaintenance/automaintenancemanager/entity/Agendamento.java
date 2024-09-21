@@ -3,6 +3,8 @@ package com.ultracar.automaintenance.automaintenancemanager.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ultracar.automaintenance.automaintenancemanager.enums.StatusType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,6 +31,7 @@ public class Agendamento {
 
     private String descricaoServico;
 
+    @Enumerated(EnumType.STRING)
     private StatusType status;
 
     public Agendamento() {}

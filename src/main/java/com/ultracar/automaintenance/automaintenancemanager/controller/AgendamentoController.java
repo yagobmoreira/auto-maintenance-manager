@@ -49,7 +49,7 @@ public class AgendamentoController {
 
     @PostMapping("/clientes/{clienteId}")
     public ResponseEntity<AgendamentoDto> create(@RequestBody @Valid AgendamentoCreationDto creationDto, @PathVariable Long clienteId)
-        throws ClienteNotFoundException {
+        throws ClienteNotFoundException, BusinessException {
         Agendamento novoAgendamento = creationDto.toEntity();
 
         Agendamento agendamentoCriado = agendamentoService.create(novoAgendamento, clienteId);
