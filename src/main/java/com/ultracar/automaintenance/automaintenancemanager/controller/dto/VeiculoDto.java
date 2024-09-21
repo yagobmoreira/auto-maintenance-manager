@@ -8,8 +8,7 @@ public record VeiculoDto(
     String placa,
     String modelo,
     String marca,
-    Integer ano,
-    Long clienteId
+    Integer ano
 ) {
     public static VeiculoDto fromEntity(Veiculo veiculo) {
         return new VeiculoDto(
@@ -17,8 +16,7 @@ public record VeiculoDto(
             veiculo.getPlaca(),
             veiculo.getModelo(),
             veiculo.getMarca(),
-            veiculo.getAno(),
-            veiculo.getCliente().getId()
+            veiculo.getAno()
         );
     }
 }

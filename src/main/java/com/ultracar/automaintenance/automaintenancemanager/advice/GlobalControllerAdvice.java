@@ -24,7 +24,7 @@ public class GlobalControllerAdvice {
     @ExceptionHandler
     public ResponseEntity<String> handleBusinessException(BusinessException exception) {
         return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
+            .status(HttpStatus.BAD_REQUEST)
             .body(exception.getMessage());
     }
 

@@ -39,6 +39,10 @@ public class Cliente {
     @JsonManagedReference
     private Endereco endereco;
 
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Agendamento> agendamentos;
+
     private boolean deleted;
 
     public Cliente() {
@@ -48,6 +52,7 @@ public class Cliente {
         this.nome = nome;
         this.cpf = cpf;
         this.veiculos = new ArrayList<>();
+        this.agendamentos = new ArrayList<>();
         this.deleted = false;
     }
 
@@ -90,6 +95,15 @@ public class Cliente {
 
     public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
+    }
+
+    public List<Agendamento> getAgendamentos() {
+        return agendamentos;
+    }
+
+    public void setAgendamento(
+        Agendamento agendamento) {
+        this.agendamentos.add(agendamento);
     }
 
     public boolean isDeleted() {

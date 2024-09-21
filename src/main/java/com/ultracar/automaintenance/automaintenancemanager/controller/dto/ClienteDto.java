@@ -6,7 +6,7 @@ import com.ultracar.automaintenance.automaintenancemanager.entity.Veiculo;
 import java.util.List;
 
 public record ClienteDto(Long id, String nome, String cpf, List<Veiculo> veiculos,
-                         Endereco endereco) {
+                         Endereco endereco, List<AgendamentoDto> agendamentos) {
 
     public static ClienteDto fromEntity(Cliente cliente) {
         return new ClienteDto(
@@ -14,7 +14,8 @@ public record ClienteDto(Long id, String nome, String cpf, List<Veiculo> veiculo
             cliente.getNome(),
             cliente.getCpf(),
             cliente.getVeiculos(),
-            cliente.getEndereco()
+            cliente.getEndereco(),
+            cliente.getAgendamentos().stream().map(AgendamentoDto::fromEntity).toList()
         );
     }
 

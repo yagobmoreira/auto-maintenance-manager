@@ -42,12 +42,22 @@ public class ClienteServiceImpl {
     }
 
     @Transactional
-    public Cliente create(Cliente cliente, Endereco endereco, Veiculo veiculo) throws BusinessException {
+    public Cliente create(Cliente cliente, Endereco endereco, Veiculo veiculo)
+        throws BusinessException {
+        //Verifica se o CPF é de uma pessoa já cadastrada
         validateCliente(cliente);
 
+        //Cria no banco de dados o veículo do cliente. Caso veículo já esteja cadastrado lança um erro.
+        Veiculo veiculoCriado = veiculoService.create(veiculo);
+
+        //Após a criação no banco de dados. Víncula ao objeto Cliente o Veículo criado.
+        cliente.setVeiculo(veiculoCriado);
+
+        //Cria no banco de dados o Cliente.
         Cliente clienteCriado = clienteRepository.save(cliente);
 
-        return saveEnderecoAndVeiculo(clienteCriado, endereco, veiculo);
+        //Cria um endereço na tabela endereços, víncula esse endereço ao cliente e atualiza o cliente no banco de dados.
+        return salvarEndereco(clienteCriado, endereco);
     }
 
     private void validateCliente(Cliente cliente) throws BusinessException {
@@ -56,17 +66,17 @@ public class ClienteServiceImpl {
         }
     }
 
-    private Cliente saveEnderecoAndVeiculo(Cliente cliente, Endereco endereco, Veiculo veiculo)
-        throws BusinessException {
+    private Cliente salvarEndereco(Cliente cliente, Endereco endereco) {
+        //Adiciona ao objeto endereço o cliente.
         endereco.setCliente(cliente);
-        veiculo.setCliente(cliente);
 
+        //Salva o endereço na tabela endereços do banco de dados
         Endereco enderecoCriado = enderecoService.create(endereco);
-        Veiculo veiculoCriado = veiculoService.create(veiculo);
 
+        //Vínculo o endereço ao cliente.
         cliente.setEndereco(enderecoCriado);
-        cliente.setVeiculo(veiculoCriado);
 
+        //Salva no banco de dados, o endereço do cliente.
         return clienteRepository.save(cliente);
     }
 
@@ -79,9 +89,11 @@ public class ClienteServiceImpl {
             throw new BusinessException("O id deve ser o mesmo");
         }
 
+        //Atualiza informações do cliente, como CPF e nome;
         dbCliente.setCpf(entity.getCpf());
         dbCliente.setNome(entity.getNome());
 
+        //Salva no banco de dados, as informações atualizadas do cliente.
         return this.clienteRepository.save(dbCliente);
     }
 
@@ -91,5 +103,9 @@ public class ClienteServiceImpl {
         dbCliente.setDeleted();
 
         this.clienteRepository.save(dbCliente);
+    }
+
+    public Cliente saveAgendamento(Cliente clienteComAgendamento) {
+        return this.clienteRepository.save(clienteComAgendamento);
     }
 }

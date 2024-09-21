@@ -1,11 +1,13 @@
 package com.ultracar.automaintenance.automaintenancemanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ultracar.automaintenance.automaintenancemanager.enums.StatusType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -18,8 +20,10 @@ public class Agendamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long clienteId;
+    @ManyToOne
+    @JoinColumn(name = "clienteId", nullable = false)
+    @JsonBackReference
+    private Cliente cliente;
 
     private LocalDateTime dataAgendamento;
 
@@ -29,6 +33,12 @@ public class Agendamento {
 
     public Agendamento() {}
 
+    public Agendamento(LocalDateTime dataAgendamento, String descricaoServico) {
+        this.dataAgendamento = dataAgendamento;
+        this.descricaoServico = descricaoServico;
+        this.status = StatusType.PENDENTE;
+    }
+
     public Long getId() {
         return id;
     }
@@ -37,12 +47,12 @@ public class Agendamento {
         this.id = id;
     }
 
-    public Long getClienteId() {
-        return clienteId;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setClienteId(Long clienteId) {
-        this.clienteId = clienteId;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
     public LocalDateTime getDataAgendamento() {
@@ -78,21 +88,21 @@ public class Agendamento {
             return false;
         }
         Agendamento that = (Agendamento) o;
-        return Objects.equals(getId(), that.getId()) && Objects.equals(
-            getClienteId(), that.getClienteId()) && Objects.equals(getDataAgendamento(),
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getCliente(),
+            that.getCliente()) && Objects.equals(getDataAgendamento(),
             that.getDataAgendamento());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getClienteId(), getDataAgendamento());
+        return Objects.hash(getId(), getCliente(), getDataAgendamento());
     }
 
     @Override
     public String toString() {
         return "Agendamento{" +
             "id=" + id +
-            ", clienteId=" + clienteId +
+            ", cliente=" + cliente +
             ", dataAgendamento=" + dataAgendamento +
             ", descricaoServico='" + descricaoServico + '\'' +
             ", status=" + status +
