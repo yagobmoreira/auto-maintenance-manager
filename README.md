@@ -18,6 +18,30 @@ veículos, clientes e agendamento de serviços. Além disso, é possível gerenc
 finalizar
 serviços ou cancelar agendamentos.
 
+## Funcionamento
+
+<details>
+    <summary><strong>Registro de cliente</strong></summary>
+
+O registro de cliente é feito por um formulário, onde são solicitadas as seguintes
+informações: nome, CPF, CEP, placa do veículo, modelo do veículo, marca do veículo e ano do veículo.
+As informações são validadas e, caso estejam corretas, o cliente é cadastrado no sistema. Caso
+contrário, uma mensagem de erro é exibida.
+
+![Registro de cliente](src/main/resources/public/fluxo-registro-cliente.png)
+</details>
+
+<details>
+    <summary><strong>Cadastro de agendamento</strong></summary>
+
+Primeiramente o usuário da plataforma solicita um agendamento através de uma requisição, informando
+o ID do cliente, a data de agendamento e a descrição do serviço. Se tudo estiver correto uma
+entidade agendamento é criada na tabela agendamentos, e é automaticamente relacionada com o cliente
+informado.
+
+![Cadastro de agendamento](src/main/resources/public/fluxo-de-agendamento.png)
+</details>
+
 ## ⚙ Instalação
 
 ### 📝 Requisitos
@@ -29,7 +53,7 @@ Antes de baixar o projeto é necessário ter as seguintes ferramentas já instal
 * [Maven](https://maven.apache.org/)
 * [Docker](https://www.docker.com)
 * [Docker Compose](https://docs.docker.com/compose/install/)
-* [PostgreSQL](https://www.postgresql.org/download/) (Opcional)
+* [PostgreSQL](https://www.postgresql.org/download/)
 * [Insomnia](https://insomnia.rest/) (Opcional)
 
 ### Configuração
@@ -53,6 +77,10 @@ Passo a passo para clonar e executar a aplicação na sua máquina:
 > compose o comando será 'docker-compose'.
 
 4. Realizar as requisições.
+5. Para parar os containers:
+    ```bash
+    docker compose down
+    ```
 
 #### Localmente
 
@@ -97,7 +125,7 @@ diretamente para a aplicação, simplificando o processo de teste e interação 
 #### Cadastro de clientes
 
 - Método: POST
-- URL: /persons
+- URL: /clientes
 - Descrição: Cria novo usuário
 - Corpo:
     ```json

@@ -12,7 +12,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=ultracar
       - SPRING_DATASOURCE_PASSWORD=my-secret
     depends_on:
-      - pg
+      pg:
+        condition: service_healthy
   pg:
     image: bitnami/postgresql:13.16.0
     ports:
@@ -22,4 +23,9 @@ services:
       - POSTGRES_USER=ultracar
       - POSTGRES_PASSWORD=my-secret
       - POSTGRES_DB=ultracar_db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ultracar" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
