@@ -2,21 +2,28 @@ package com.ultracar.automaintenance.automaintenancemanager.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.util.Objects;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * The type Endereco.
  */
 @Entity
 @Table(name = "enderecos")
+@EntityListeners(AuditingEntityListener.class)
 public class Endereco {
 
   @Id
@@ -38,6 +45,14 @@ public class Endereco {
   @JoinColumn(name = "cliente_id")
   @JsonBackReference
   private Cliente cliente;
+
+  @CreatedDate
+  @JsonProperty("created_date")
+  private LocalDate createDate;
+
+  @LastModifiedDate
+  @JsonProperty("last_modified_date")
+  private LocalDate lastModifiedDate;
 
   /**
    * Instantiates a new Endereco.
@@ -208,6 +223,22 @@ public class Endereco {
    */
   public void setCliente(Cliente cliente) {
     this.cliente = cliente;
+  }
+
+  public LocalDate getCreateDate() {
+    return createDate;
+  }
+
+  public void setCreateDate(LocalDate createDate) {
+    this.createDate = createDate;
+  }
+
+  public LocalDate getLastModifiedDate() {
+    return lastModifiedDate;
+  }
+
+  public void setLastModifiedDate(LocalDate lastModifiedDate) {
+    this.lastModifiedDate = lastModifiedDate;
   }
 
   @Override

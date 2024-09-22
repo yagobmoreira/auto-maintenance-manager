@@ -1,8 +1,10 @@
 package com.ultracar.automaintenance.automaintenancemanager.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ultracar.automaintenance.automaintenancemanager.enums.StatusType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -11,14 +13,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * The type Agendamento.
  */
 @Entity
 @Table(name = "agendamentos")
+@EntityListeners(AuditingEntityListener.class)
 public class Agendamento {
 
   @Id
@@ -36,6 +43,14 @@ public class Agendamento {
 
   @Enumerated(EnumType.STRING)
   private StatusType status;
+
+  @CreatedDate
+  @JsonProperty("created_date")
+  private LocalDate createDate;
+
+  @LastModifiedDate
+  @JsonProperty("last_modified_date")
+  private LocalDate lastModifiedDate;
 
   public Agendamento() {
   }
@@ -92,6 +107,22 @@ public class Agendamento {
     this.status = status;
   }
 
+  public LocalDate getCreateDate() {
+    return createDate;
+  }
+
+  public void setCreateDate(LocalDate createDate) {
+    this.createDate = createDate;
+  }
+
+  public LocalDate getLastModifiedDate() {
+    return lastModifiedDate;
+  }
+
+  public void setLastModifiedDate(LocalDate lastModifiedDate) {
+    this.lastModifiedDate = lastModifiedDate;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -102,7 +133,7 @@ public class Agendamento {
     }
     Agendamento that = (Agendamento) o;
     return Objects.equals(getId(), that.getId()) && Objects.equals(getCliente(), that.getCliente())
-      && Objects.equals(getDataAgendamento(), that.getDataAgendamento());
+               && Objects.equals(getDataAgendamento(), that.getDataAgendamento());
   }
 
   @Override
@@ -113,7 +144,8 @@ public class Agendamento {
   @Override
   public String toString() {
     return "Agendamento{" + "id=" + id + ", cliente=" + cliente + ", dataAgendamento="
-      + dataAgendamento + ", descricaoServico='" + descricaoServico + '\'' + ", status=" + status
-      + '}';
+               + dataAgendamento + ", descricaoServico='" + descricaoServico + '\'' + ", status="
+               + status
+               + '}';
   }
 }

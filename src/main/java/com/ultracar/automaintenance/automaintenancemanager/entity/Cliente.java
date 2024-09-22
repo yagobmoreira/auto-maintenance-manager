@@ -1,9 +1,11 @@
 package com.ultracar.automaintenance.automaintenancemanager.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,15 +14,20 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * The type Cliente.
  */
 @Entity
 @Table(name = "clientes")
+@EntityListeners(AuditingEntityListener.class)
 public class Cliente {
 
   @Id
@@ -47,6 +54,14 @@ public class Cliente {
   private List<Agendamento> agendamentos;
 
   private boolean deleted;
+
+  @CreatedDate
+  @JsonProperty("created_date")
+  private LocalDate createDate;
+
+  @LastModifiedDate
+  @JsonProperty("last_modified_date")
+  private LocalDate lastModifiedDate;
 
   /**
    * Instantiates a new Cliente.
@@ -192,6 +207,22 @@ public class Cliente {
    */
   public void setDeleted() {
     this.deleted = true;
+  }
+
+  public LocalDate getCreateDate() {
+    return createDate;
+  }
+
+  public void setCreateDate(LocalDate createDate) {
+    this.createDate = createDate;
+  }
+
+  public LocalDate getLastModifiedDate() {
+    return lastModifiedDate;
+  }
+
+  public void setLastModifiedDate(LocalDate lastModifiedDate) {
+    this.lastModifiedDate = lastModifiedDate;
   }
 
   @Override

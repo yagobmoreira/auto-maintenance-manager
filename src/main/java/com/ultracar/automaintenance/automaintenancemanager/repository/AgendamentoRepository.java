@@ -1,7 +1,6 @@
 package com.ultracar.automaintenance.automaintenancemanager.repository;
 
 import com.ultracar.automaintenance.automaintenancemanager.entity.Agendamento;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

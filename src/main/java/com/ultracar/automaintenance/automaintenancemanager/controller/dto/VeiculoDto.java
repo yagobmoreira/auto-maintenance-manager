@@ -1,6 +1,7 @@
 package com.ultracar.automaintenance.automaintenancemanager.controller.dto;
 
 import com.ultracar.automaintenance.automaintenancemanager.entity.Veiculo;
+import java.time.LocalDate;
 
 /**
  * The type Veiculo dto.
@@ -10,7 +11,9 @@ public record VeiculoDto(
     String placa,
     String modelo,
     String marca,
-    Integer ano
+    Integer ano,
+    LocalDate createDate,
+    LocalDate lastModifiedDate
 ) {
 
   /**
@@ -25,7 +28,9 @@ public record VeiculoDto(
         veiculo.getPlaca(),
         veiculo.getModelo(),
         veiculo.getMarca(),
-        veiculo.getAno()
+        veiculo.getAno(),
+        veiculo.getCreateDate(),
+        veiculo.getLastModifiedDate()
     );
   }
 }

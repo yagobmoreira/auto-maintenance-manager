@@ -1,4 +1,18 @@
 services:
+  ultracar-api:
+    image: ultracar-api
+    build: .
+    ports:
+      - "8080:8080"
+    links:
+      - pg
+    restart: always
+    environment:
+      - DATABASE_URL=jdbc:postgresql://pg:5432/ultracar_db
+      - SPRING_DATASOURCE_USERNAME=ultracar
+      - SPRING_DATASOURCE_PASSWORD=my-secret
+    depends_on:
+      - pg
   pg:
     image: bitnami/postgresql:13.16.0
     ports:

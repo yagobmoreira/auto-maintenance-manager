@@ -2,6 +2,7 @@ package com.ultracar.automaintenance.automaintenancemanager.controller.dto;
 
 import com.ultracar.automaintenance.automaintenancemanager.entity.Agendamento;
 import com.ultracar.automaintenance.automaintenancemanager.enums.StatusType;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -12,7 +13,9 @@ public record AgendamentoDto(
     Long clienteId,
     String dataAgendamento,
     String descricaoServico,
-    StatusType status
+    StatusType status,
+    LocalDate createDate,
+    LocalDate lastModifiedDate
 ) {
 
   /**
@@ -29,7 +32,9 @@ public record AgendamentoDto(
         agendamento.getDataAgendamento()
             .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
         agendamento.getDescricaoServico(),
-        agendamento.getStatus()
+        agendamento.getStatus(),
+        agendamento.getCreateDate(),
+        agendamento.getLastModifiedDate()
     );
   }
 }
