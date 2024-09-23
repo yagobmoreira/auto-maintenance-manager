@@ -54,8 +54,8 @@ public class VeiculoController {
       content = @Content(array = @ArraySchema(
           schema = @Schema(implementation = VeiculoDto.class)
       )))
-  public ResponseEntity<List<VeiculoDto>> findAll() {
-    List<Veiculo> veiculos = veiculoService.findAll();
+  public ResponseEntity<List<VeiculoDto>> obterVeiculos() {
+    List<Veiculo> veiculos = veiculoService.obterVeiculos();
     return ResponseEntity.ok(veiculos.stream().map(VeiculoDto::fromEntity).toList());
   }
 
@@ -71,9 +71,9 @@ public class VeiculoController {
   @ApiResponse(responseCode = "200", description = "Retorno de um veículo",
       content = @Content(schema = @Schema(implementation = VeiculoDto.class)))
   @ApiResponse(responseCode = "404", description = "Veículo não encontrado")
-  public ResponseEntity<VeiculoDto> findById(@PathVariable Long id)
+  public ResponseEntity<VeiculoDto> obterVeiculoPeloId(@PathVariable Long id)
       throws VeiculoNotFoundException {
-    Veiculo veiculo = veiculoService.findById(id);
+    Veiculo veiculo = veiculoService.obterVeiculoPeloId(id);
 
     return ResponseEntity.ok(VeiculoDto.fromEntity(veiculo));
   }
@@ -90,7 +90,7 @@ public class VeiculoController {
   @ApiResponse(responseCode = "201", description = "Veículo criado",
       content = @Content(schema = @Schema(implementation = VeiculoDto.class)))
   @ApiResponse(responseCode = "400", description = "Veículo já cadastrado")
-  public ResponseEntity<VeiculoDto> create(@RequestBody @Valid VeiculoCreationDto creationDto)
+  public ResponseEntity<VeiculoDto> criarVeiculo(@RequestBody @Valid VeiculoCreationDto creationDto)
       throws BusinessException {
     Veiculo novoVeiculo = this.veiculoService.criarVeiculo(creationDto.toEntity());
 

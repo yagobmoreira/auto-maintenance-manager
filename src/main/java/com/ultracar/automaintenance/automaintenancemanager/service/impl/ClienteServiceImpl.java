@@ -42,7 +42,7 @@ public class ClienteServiceImpl {
    *
    * @return uma lista de clientes.
    */
-  public List<Cliente> findAll() {
+  public List<Cliente> obterClientes() {
     return this.clienteRepository.findAll();
   }
 
@@ -53,7 +53,7 @@ public class ClienteServiceImpl {
    * @return Objeto do tipo Cliente
    * @throws ClienteNotFoundException Caso não exista um cliente com o 'ID' indicado
    */
-  public Cliente findById(Long clienteId) throws ClienteNotFoundException {
+  public Cliente obterClientePeloId(Long clienteId) throws ClienteNotFoundException {
     Cliente dbClient = this.clienteRepository.findById(clienteId)
                            .orElseThrow(ClienteNotFoundException::new);
 
@@ -74,10 +74,10 @@ public class ClienteServiceImpl {
    * @throws BusinessException Caso o veículo já esteja cadastrado.
    */
   @Transactional
-  public Cliente create(Cliente cliente, Endereco endereco, Veiculo veiculo)
+  public Cliente criarCliente(Cliente cliente, Endereco endereco, Veiculo veiculo)
       throws BusinessException {
     //Verifica se o CPF é de uma pessoa já cadastrada
-    validateCliente(cliente);
+    validarCliente(cliente);
 
     //Cria no banco de dados o veículo do cliente. Caso veículo já esteja cadastrado lança um erro.
     Veiculo veiculoCriado = veiculoService.criarVeiculoComDono(veiculo, cliente);
@@ -93,7 +93,7 @@ public class ClienteServiceImpl {
     return salvarEndereco(clienteCriado, endereco);
   }
 
-  private void validateCliente(Cliente cliente) throws BusinessException {
+  private void validarCliente(Cliente cliente) throws BusinessException {
     if (clienteRepository.existsClienteByCpf(cliente.getCpf())) {
       throw new BusinessException("CPF já cadastrado anteriormente");
     }
@@ -104,7 +104,7 @@ public class ClienteServiceImpl {
     endereco.setCliente(cliente);
 
     //Salva o endereço na tabela endereços do banco de dados
-    Endereco enderecoCriado = enderecoService.create(endereco);
+    Endereco enderecoCriado = enderecoService.criarEndereco(endereco);
 
     //Vínculo o endereço ao cliente.
     cliente.setEndereco(enderecoCriado);
@@ -123,9 +123,9 @@ public class ClienteServiceImpl {
    * @throws ClienteNotFoundException Caso não exista um cliente com o 'ID' indicado
    */
   @Transactional
-  public Cliente update(Long clienteId, Cliente entity)
+  public Cliente atualizarCliente(Long clienteId, Cliente entity)
       throws BusinessException, ClienteNotFoundException {
-    Cliente dbCliente = this.findById(clienteId);
+    Cliente dbCliente = this.obterClientePeloId(clienteId);
 
     if (!dbCliente.getId().equals(entity.getId())) {
       throw new BusinessException("O id deve ser o mesmo");
@@ -151,8 +151,8 @@ public class ClienteServiceImpl {
    * @throws ClienteNotFoundException Caso não exista um cliente com o 'ID' indicado
    */
   @Transactional
-  public void delete(Long clienteId) throws ClienteNotFoundException {
-    Cliente dbCliente = this.findById(clienteId);
+  public void desativarCliente(Long clienteId) throws ClienteNotFoundException {
+    Cliente dbCliente = this.obterClientePeloId(clienteId);
     dbCliente.setDeleted();
 
     this.clienteRepository.save(dbCliente);
@@ -170,7 +170,7 @@ public class ClienteServiceImpl {
   @Transactional
   public Cliente adicionarVeiculo(String placa, Long clienteId)
       throws ClienteNotFoundException, VeiculoNotFoundException {
-    Cliente dbCliente = this.findById(clienteId);
+    Cliente dbCliente = this.obterClientePeloId(clienteId);
     Veiculo veiculo = this.veiculoService.listarPorPlaca(placa);
 
     dbCliente.setVeiculo(veiculo);

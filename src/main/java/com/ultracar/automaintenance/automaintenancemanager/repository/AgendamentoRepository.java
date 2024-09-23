@@ -16,7 +16,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
   @Query("SELECT a FROM  Agendamento a WHERE a.cliente.id = :clienteId "
              + "AND a.dataAgendamento BETWEEN :dataInicial AND :dataFinal")
-  List<Agendamento> findByClienteIdBetweenDates(
+  List<Agendamento> obterAgendamentosClienteEntreDatas(
       @Param("clienteId") Long clienteId,
       @Param("dataInicial") LocalDateTime startDate,
       @Param("dataFinal") LocalDateTime endDate);

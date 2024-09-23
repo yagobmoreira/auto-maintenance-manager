@@ -24,7 +24,7 @@ public class EnderecoServiceImpl {
    * @param novoEndereco Objeto do tipo Endereco
    * @return Objeto do tipo Endereco
    */
-  public Endereco create(Endereco novoEndereco) {
+  public Endereco criarEndereco(Endereco novoEndereco) {
     return this.enderecoRepository.save(novoEndereco);
   }
 }

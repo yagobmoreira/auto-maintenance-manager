@@ -61,8 +61,8 @@ public class ClienteController {
       content = @Content(array = @ArraySchema(
           schema = @Schema(implementation = ClienteDto.class)
       )))
-  public ResponseEntity<List<ClienteDto>> findAll() {
-    List<Cliente> clientes = clienteService.findAll();
+  public ResponseEntity<List<ClienteDto>> obterClientes() {
+    List<Cliente> clientes = clienteService.obterClientes();
     return ResponseEntity.ok(clientes.stream().map(ClienteDto::fromEntity).toList());
   }
 
@@ -78,9 +78,9 @@ public class ClienteController {
   @ApiResponse(responseCode = "200", description = "Retorno do cliente",
       content = @Content(schema = @Schema(implementation = ClienteDto.class)))
   @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
-  public ResponseEntity<ClienteDto> findById(@PathVariable Long id)
+  public ResponseEntity<ClienteDto> obterClientePeloId(@PathVariable Long id)
       throws ClienteNotFoundException {
-    Cliente cliente = clienteService.findById(id);
+    Cliente cliente = clienteService.obterClientePeloId(id);
     return ResponseEntity.ok(ClienteDto.fromEntity(cliente));
   }
 
@@ -98,7 +98,7 @@ public class ClienteController {
   @ApiResponse(responseCode = "400", description = "Cep inválido")
   @ApiResponse(responseCode = "400", description = "Cpf já cadastrado")
   @ApiResponse(responseCode = "400", description = "Placa já cadastrada")
-  public ResponseEntity<ClienteDto> create(@RequestBody @Valid ClienteCreationDto creationDto)
+  public ResponseEntity<ClienteDto> criarCliente(@RequestBody @Valid ClienteCreationDto creationDto)
       throws BusinessException {
     Cep cep = ViaCepClient.findCep(creationDto.cep());
 
@@ -111,7 +111,7 @@ public class ClienteController {
     Veiculo veiculo = new Veiculo(creationDto.placa(), creationDto.modelo(),
         creationDto.marca(), creationDto.ano());
 
-    Cliente clienteCriado = clienteService.create(novoCliente, endereco, veiculo);
+    Cliente clienteCriado = clienteService.criarCliente(novoCliente, endereco, veiculo);
 
     URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                        .path("/{id}")

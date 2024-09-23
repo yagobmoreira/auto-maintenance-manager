@@ -56,8 +56,8 @@ public class AgendamentoController {
   @ApiResponse(responseCode = "200", description = "Retorno de todos os agendamentos.",
       content = @Content(array = @ArraySchema(
           schema = @Schema(implementation = AgendamentoDto.class))))
-  public ResponseEntity<List<AgendamentoDto>> findAll() {
-    List<Agendamento> agendamentos = agendamentoService.findAll();
+  public ResponseEntity<List<AgendamentoDto>> obterAgendamentos() {
+    List<Agendamento> agendamentos = agendamentoService.obterAgendamentos();
     return ResponseEntity.ok(agendamentos.stream().map(AgendamentoDto::fromEntity).toList());
   }
 
@@ -73,9 +73,9 @@ public class AgendamentoController {
   @ApiResponse(responseCode = "200", description = "Retorno do agendamento.",
       content = @Content(schema = @Schema(implementation = AgendamentoDto.class)))
   @ApiResponse(responseCode = "404", description = "Agendamento não encontrado.")
-  public ResponseEntity<AgendamentoDto> findById(@PathVariable Long id)
+  public ResponseEntity<AgendamentoDto> obterAgendamentoPeloId(@PathVariable Long id)
       throws AgendamentoNotFoundException {
-    Agendamento agendamento = agendamentoService.findById(id);
+    Agendamento agendamento = agendamentoService.obterAgendamentoPeloId(id);
 
     return ResponseEntity.ok(AgendamentoDto.fromEntity(agendamento));
   }
@@ -95,12 +95,12 @@ public class AgendamentoController {
       content = @Content(schema = @Schema(implementation = AgendamentoDto.class)))
   @ApiResponse(responseCode = "404", description = "Cliente não encontrado.")
   @ApiResponse(responseCode = "400", description = "Data inválida.")
-  public ResponseEntity<AgendamentoDto> create(
+  public ResponseEntity<AgendamentoDto> criarAgendamento(
       @RequestBody @Valid AgendamentoCreationDto creationDto, @PathVariable Long clienteId)
       throws ClienteNotFoundException, BusinessException {
     Agendamento novoAgendamento = creationDto.toEntity();
 
-    Agendamento agendamentoCriado = agendamentoService.create(novoAgendamento, clienteId);
+    Agendamento agendamentoCriado = agendamentoService.criarAgendamento(novoAgendamento, clienteId);
 
     URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/clientes/{clienteId}")
                        .buildAndExpand(novoAgendamento.getId()).toUri();

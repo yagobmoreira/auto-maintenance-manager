@@ -8,7 +8,6 @@ import com.ultracar.automaintenance.automaintenancemanager.service.exception.Age
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.BusinessException;
 import com.ultracar.automaintenance.automaintenancemanager.service.exception.ClienteNotFoundException;
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class AgendamentoServiceImpl {
    *
    * @return uma lista de agendamentos.
    */
-  public List<Agendamento> findAll() {
+  public List<Agendamento> obterAgendamentos() {
     return this.agendamentoRepository.findAll();
   }
 
@@ -49,7 +48,8 @@ public class AgendamentoServiceImpl {
    * @return Objeto do tipo Agendamento
    * @throws AgendamentoNotFoundException Caso não exista um agendamento com o 'ID' indicado
    */
-  public Agendamento findById(Long agendamentoId) throws AgendamentoNotFoundException {
+  public Agendamento obterAgendamentoPeloId(Long agendamentoId)
+      throws AgendamentoNotFoundException {
     return this.agendamentoRepository.findById(agendamentoId).orElseThrow(
         AgendamentoNotFoundException::new);
   }
@@ -64,9 +64,9 @@ public class AgendamentoServiceImpl {
    * @throws BusinessException        Caso a data seja inválida
    */
   @Transactional
-  public Agendamento create(Agendamento novoAgendamento, Long clienteId)
+  public Agendamento criarAgendamento(Agendamento novoAgendamento, Long clienteId)
       throws ClienteNotFoundException, BusinessException {
-    Cliente cliente = this.clienteService.findById(clienteId);
+    Cliente cliente = this.clienteService.obterClientePeloId(clienteId);
 
     //Verificação da data de agendamento
     verificarDataAgendamento(novoAgendamento.getDataAgendamento());
@@ -104,7 +104,7 @@ public class AgendamentoServiceImpl {
   @Transactional
   public Agendamento finalizarServico(Long agendamentoId)
       throws AgendamentoNotFoundException, BusinessException {
-    Agendamento agendamento = this.findById(agendamentoId);
+    Agendamento agendamento = this.obterAgendamentoPeloId(agendamentoId);
 
     if (!agendamento.getStatus().equals(StatusType.PENDENTE)) {
       throw new BusinessException(
@@ -129,7 +129,7 @@ public class AgendamentoServiceImpl {
   @Transactional
   public Agendamento cancelarServico(Long agendamentoId)
       throws AgendamentoNotFoundException, BusinessException {
-    Agendamento agendamento = this.findById(agendamentoId);
+    Agendamento agendamento = this.obterAgendamentoPeloId(agendamentoId);
 
     if (!agendamento.getStatus().equals(StatusType.PENDENTE)) {
       throw new BusinessException(
@@ -160,7 +160,7 @@ public class AgendamentoServiceImpl {
    */
   public List<Agendamento> listarAgendamentoEntreDatas(Long clienteId, LocalDateTime dataInicial,
       LocalDateTime dataFinal) {
-    return this.agendamentoRepository.findByClienteIdBetweenDates(clienteId, dataInicial,
+    return this.agendamentoRepository.obterAgendamentosClienteEntreDatas(clienteId, dataInicial,
         dataFinal);
   }
 

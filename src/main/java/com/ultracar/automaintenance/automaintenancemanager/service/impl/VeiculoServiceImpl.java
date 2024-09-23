@@ -33,7 +33,7 @@ public class VeiculoServiceImpl {
    *
    * @return uma lista de veículos.
    */
-  public List<Veiculo> findAll() {
+  public List<Veiculo> obterVeiculos() {
     return this.veiculoRepository.findAll();
   }
 
@@ -44,7 +44,7 @@ public class VeiculoServiceImpl {
    * @return Objeto do tipo Veiculo
    * @throws VeiculoNotFoundException Caso não exista um veículo com o 'ID' indicado
    */
-  public Veiculo findById(Long veiculoId) throws VeiculoNotFoundException {
+  public Veiculo obterVeiculoPeloId(Long veiculoId) throws VeiculoNotFoundException {
     return this.veiculoRepository.findById(veiculoId).orElseThrow(
         VeiculoNotFoundException::new);
   }
@@ -58,7 +58,7 @@ public class VeiculoServiceImpl {
    */
   @Transactional
   public Veiculo criarVeiculo(Veiculo novoVeiculo) throws BusinessException {
-    checkIfPlacaExists(novoVeiculo.getPlaca());
+    verificarPlacaCadastrada(novoVeiculo.getPlaca());
 
     return this.veiculoRepository.save(novoVeiculo);
   }
@@ -73,7 +73,7 @@ public class VeiculoServiceImpl {
    */
   public Veiculo criarVeiculoComDono(Veiculo novoVeiculo, Cliente donoVeiculo)
       throws BusinessException {
-    checkIfPlacaExists(novoVeiculo.getPlaca());
+    verificarPlacaCadastrada(novoVeiculo.getPlaca());
 
     Veiculo veiculo = new Veiculo(novoVeiculo.getPlaca(), novoVeiculo.getModelo(),
         novoVeiculo.getMarca(), novoVeiculo.getAno());
@@ -82,7 +82,7 @@ public class VeiculoServiceImpl {
     return this.veiculoRepository.save(veiculo);
   }
 
-  private void checkIfPlacaExists(String placa) throws BusinessException {
+  private void verificarPlacaCadastrada(String placa) throws BusinessException {
     if (veiculoRepository.existsByPlaca(placa)) {
       throw new BusinessException("Veículo já cadastrado com a placa: " + placa);
     }
@@ -107,7 +107,7 @@ public class VeiculoServiceImpl {
    * @throws VeiculoNotFoundException the veiculo not found exception
    */
   public void adicionarCliente(Cliente cliente, Veiculo veiculo) throws VeiculoNotFoundException {
-    Veiculo dbVeiculo = findById(veiculo.getId());
+    Veiculo dbVeiculo = obterVeiculoPeloId(veiculo.getId());
     dbVeiculo.setCliente(cliente);
 
     this.veiculoRepository.save(dbVeiculo);

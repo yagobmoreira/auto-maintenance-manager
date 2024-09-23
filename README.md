@@ -42,6 +42,12 @@ informado.
 ![Cadastro de agendamento](src/main/resources/public/fluxo-de-agendamento.png)
 </details>
 
+<details>
+    <summary><strong>Diagrama entidade relacionamento</strong></summary>
+
+![DER](src/main/resources/public/der.png)
+</details>
+
 ## ⚙ Instalação
 
 ### 📝 Requisitos
@@ -76,8 +82,16 @@ Passo a passo para clonar e executar a aplicação na sua máquina:
 > dados irá expor a porta 5432, que é a porta padrão do PostgreSQL. Dependendo da versão do docker
 > compose o comando será 'docker-compose'.
 
-4. Realizar as requisições.
-5. Para parar os containers:
+4. Executar apenas o container do banco de dados:
+    ```bash
+    docker compose up -d --build pg
+    ```
+
+> Nota: Caso deseje, rode apenas o container do banco de dados para realizar a criação do banco de
+> dados e das tabelas. Em seguida execute a aplicação localmente.
+
+5. Realizar as requisições.
+6. Para parar os containers:
     ```bash
     docker compose down
     ```

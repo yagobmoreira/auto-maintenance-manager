@@ -16,7 +16,7 @@ public class OpenApiConfig implements OpenApiCustomizer {
     Info info = new Info()
                     .title("Ultracar Auto Maintenance Manager")
                     .description(
-                        "Esete projeto apresenta uma API RESTful que permite a criação, "
+                        "Este projeto apresenta uma API RESTful que permite a criação, "
                             + "listagem e busca de agendamentos de manutenções em veículos. "
                             + "A API oferece endpoints para a criação de agendamentos, "
                             + "listagem de todos os agendamentos e busca de um agendamento "
